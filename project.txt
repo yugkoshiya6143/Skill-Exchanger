@@ -1,0 +1,264 @@
+Complete MERN Stack Skill Exchanger - Full Development Guide
+Project Overview
+Build a full-stack web application where users can exchange skills with each other. Users can register, search for others by skills, send skill exchange requests, chat, and rate each other after completing sessions.
+
+Tech Stack
+Backend: Node.js, Express.js, MongoDB, Mongoose
+Frontend: React.js, Bootstrap 5, Axios
+Authentication: JWT tokens
+Database: MongoDB
+Complete Project Structure
+skill-exchanger/
+│
+├── backend/
+│   ├── server.js
+│   ├── config.js
+│   ├── db.js
+│   │
+│   ├── middlewares/
+│   │   ├── auth.js
+│   │   ├── validate.js
+│   │   └── errorHandler.js
+│   │
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Request.js
+│   │   ├── Message.js
+│   │   └── Rating.js
+│   │
+│   ├── controllers/
+│   │   ├── auth.controller.js
+│   │   ├── profile.controller.js
+│   │   ├── user.controller.js
+│   │   ├── request.controller.js
+│   │   ├── message.controller.js
+│   │   └── rating.controller.js
+│   │
+│   ├── routes/
+│   │   ├── auth.routes.js
+│   │   ├── profile.routes.js
+│   │   ├── users.routes.js
+│   │   ├── requests.routes.js
+│   │   ├── messages.routes.js
+│   │   └── ratings.routes.js
+│   │
+│   └── package.json
+│
+└── frontend/
+    ├── public/
+    │   └── index.html
+    │
+    ├── src/
+    │   ├── api/
+    │   │   ├── config.js
+    │   │   ├── auth.js
+    │   │   ├── profile.js
+    │   │   ├── users.js
+    │   │   ├── requests.js
+    │   │   ├── messages.js
+    │   │   └── ratings.js
+    │   │
+    │   ├── components/
+    │   │   ├── Navbar.js
+    │   │   ├── Footer.js
+    │   │   ├── ProtectedRoute.js
+    │   │   ├── Loader.js
+    │   │   └── FormInput.js
+    │   │
+    │   ├── pages/
+    │   │   ├── Home.js
+    │   │   ├── Register.js
+    │   │   ├── Login.js
+    │   │   ├── Dashboard.js
+    │   │   ├── Profile.js
+    │   │   ├── EditProfile.js
+    │   │   ├── SearchUsers.js
+    │   │   ├── ViewProfile.js
+    │   │   ├── Requests.js
+    │   │   ├── Chat.js
+    │   │   ├── Ratings.js
+    │   │   └── NotFound.js
+    │   │
+    │   ├── App.js
+    │   ├── index.js
+    │   └── App.css
+    │
+    └── package.json
+Backend Implementation Details
+1. Configuration (config.js)
+javascript
+module.exports = {
+  APP_PORT: 5000,
+  MONGO_URI: "mongodb://127.0.0.1:27017/skill_exchanger",
+  JWT_SECRET: "your_jwt_secret_key_here",
+  JWT_EXPIRES_IN: "7d",
+  BCRYPT_ROUNDS: 10,
+  MAX_MESSAGE_LEN: 500
+};
+2. Database Models
+User Model
+Fields: name, email, password, bio, skills[], avgRating, ratingsCount
+Validations: email format, password min length, name required
+Request Model
+Fields: senderId, receiverId, skillOffered, skillRequested, status
+Status: "Pending", "Accepted", "Rejected", "Completed"
+Message Model
+Fields: requestId, senderId, receiverId, message
+Only users with accepted requests can chat
+Rating Model
+Fields: requestId, raterId, rateeId, stars (1-5), feedback
+One rating per request per user
+3. API Endpoints
+Authentication Routes
+POST /api/auth/register - Register new user
+POST /api/auth/login - Login user
+GET /api/auth/me - Get current user info
+Profile Routes
+GET /api/profile/me - View own profile
+POST /api/profile/update - Update profile (bio, skills)
+User Routes
+GET /api/users/search?skill=skillname - Search users by skill
+Request Routes
+POST /api/requests/send - Send skill exchange request
+GET /api/requests/incoming - Get incoming requests
+GET /api/requests/sent - Get sent requests
+POST /api/requests/status - Update request status
+Message Routes
+POST /api/messages/send - Send message
+GET /api/messages/list?requestId=id - Get messages for request
+Rating Routes
+POST /api/ratings/give - Give rating after session
+GET /api/ratings/user/:userId - Get user's ratings
+Frontend Implementation Details
+1. UI Flow & Pages
+Home Page (Public)
+Hero section with "Join Now" and "Login" buttons
+About section explaining the platform
+How it works (3 steps with icons)
+Footer with contact information
+Register Page
+Form: Name, Email, Password, Skills (comma-separated)
+Client-side validation
+Success → Save JWT token → Redirect to Dashboard
+Login Page
+Form: Email, Password
+Validation and authentication
+Success → Save token → Redirect to Dashboard
+Dashboard (Protected)
+Navigation tabs:
+My Profile
+Search Users
+Incoming Requests
+Sent Requests
+Chat
+Ratings
+Overview cards showing counts
+Profile Pages
+My Profile: View personal details, skills, rating
+Edit Profile: Update bio and skills
+View Profile (Others): See other user's profile + "Send Request" button
+Search Users Page
+Search bar to find users by skills
+Grid/list display of user cards
+Click to view full profile
+Requests Page
+Two tabs:
+Incoming: Accept/Reject requests
+Sent: View status of sent requests
+After acceptance, "Chat" button becomes available
+Chat Page
+Message history for specific request
+Send new messages
+Real-time-like experience (polling every 5 seconds)
+Ratings Page
+View ratings received from others
+Give ratings after completing sessions
+Display average rating and feedback
+2. Component Structure
+Reusable Components
+Navbar: Different links based on auth status
+Footer: Static footer with links
+ProtectedRoute: Route wrapper checking JWT token
+Loader: Loading spinner for API calls
+FormInput: Reusable input field with validation
+3. State Management
+JWT token stored in localStorage
+Current user info in React state/Context
+API responses handled with loading states
+4. API Integration
+Axios instance with base URL configuration
+Request interceptor to add JWT token
+Response interceptor to handle 401 errors
+Centralized error handling
+Complete Workflow
+User Registration Flow
+User visits Home page
+Clicks "Register" → Register page
+Fills form → POST /api/auth/register
+Token saved in localStorage → Redirect to Dashboard
+Skill Exchange Flow
+Dashboard → Search Users
+Find user by skill → View Profile
+Send Request → POST /api/requests/send
+Other user sees Incoming Request
+Accept Request → POST /api/requests/status
+Both can now Chat → Messages exchanged
+Mark Complete → POST /api/requests/status
+Give Rating → POST /api/ratings/give
+Authentication Flow
+All protected routes check JWT token
+Invalid/expired token → Redirect to Login
+Logout → Clear localStorage → Redirect to Home
+Key Features to Implement
+Frontend Features
+Responsive design with Bootstrap 5
+Form validations (client-side)
+Loading states for API calls
+Error message displays
+Success notifications
+Mobile-friendly navigation
+Backend Features
+JWT authentication middleware
+Input validation middleware
+Error handling middleware
+Password hashing with bcrypt
+Database relationship handling
+Query optimization
+Security Features
+Protected routes (JWT verification)
+Input sanitization
+Password encryption
+Email validation
+Request ownership verification
+Development Steps
+Backend Setup:
+Initialize Node.js project
+Install dependencies (express, mongoose, bcrypt, jsonwebtoken)
+Set up MongoDB connection
+Create all models with proper validation
+Implement middlewares
+Create controllers and routes
+Test all endpoints
+Frontend Setup:
+Create React app
+Install dependencies (axios, react-router-dom, bootstrap)
+Set up routing structure
+Create API helper functions
+Build all pages step by step
+Connect with backend APIs
+Add styling and responsiveness
+Integration Testing:
+Test complete user flows
+Handle edge cases
+Add proper error handling
+Optimize performance
+Final Notes
+Keep code simple and readable
+Add comments for complex logic
+Test each feature thoroughly
+Ensure mobile responsiveness
+Handle all error scenarios gracefully
+Use consistent naming conventions
+Follow React and Node.js best practices
+This guide provides everything needed to build a complete, functional skill exchange platform from scratch.
+
